@@ -76,10 +76,26 @@ def generate_google_maps_iframes(json_str):
                 loading="lazy"
                 allowfullscreen
                 referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/search?key=AIzaSyDpEr1QH480yoYIisFP1YzW_sBUNmo2smk&q={query}">
+                src="https://www.google.com/maps/embed/v1/search?key={MAP_API_KEY}&q={query}">
             </iframe>
             """
-            iframes_html += iframe
+            # Build bullet points for restaurant details
+            details = "<ul style='margin:0 0 10px 0;padding-left:20px;'>"
+            details += f"<li><strong>Name:</strong> {name}</li>"
+            details += f"<li><strong>Cuisine:</strong> {r.get('cuisine','')}</li>"
+            details += f"<li><strong>Address:</strong> {address}</li>"
+            details += f"<li><strong>Price Range:</strong> {r.get('priceRange','')}</li>"
+            details += f"<li><strong>Specialty:</strong> {r.get('specialty','')}</li>"
+            details += f"<li><strong>Rating:</strong> {r.get('rating','')}</li>"
+            details += f"<li><strong>Distance:</strong> {r.get('distance','')} miles</li>"
+            details += "</ul>"
+            # Show map and details side by side
+            iframes_html += f"""
+            <div style="display:flex;align-items:flex-start;margin-bottom:20px;">
+                {iframe}
+                <div style="margin-left:20px;max-width:350px;">{details}</div>
+            </div>
+            """
     return iframes_html if iframes_html else "<p>No valid addresses found.</p>"
 
 def format_text_to_json(text):
@@ -160,22 +176,6 @@ demo=gr.Interface(
     "html",title="Budget Meal Finder",css="footer {visibility: hidden}",allow_flagging="never",submit_btn=gr.Button("Generate")
 )
 
-# Replace with your own Google Maps embed URL
-google_maps_iframe = """
-<iframe
-    width="600"
-    height="450"
-    style="border:0"
-    loading="lazy"
-    allowfullscreen
-    referrerpolicy="no-referrer-when-downgrade"
-    src="https://www.google.com/maps/embed/v1/view?key=AIzaSyDpEr1QH480yoYIisFP1YzW_sBUNmo2smk&center=37.7749,-122.4194&zoom=12">
-</iframe>
-"""
-
-with gr.Blocks() as demo_blocks:
-        gr.Interface.render(demo)
-        gr.HTML(google_maps_iframe)
-
+    
 if __name__=='__main__':
     demo.launch()
